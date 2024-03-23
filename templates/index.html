@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Event Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            text-align: center;
+        }
+        input[type="text"] {
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>College Event Search</h2>
+        <form id="searchForm">
+            <input type="text" id="collegeName" placeholder="Enter College Name" required>
+            <br>
+            <input type="text" id="eventName" placeholder="Enter Event Name" required>
+            <br>
+            <input type="submit" value="Search Event">
+        </form>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var collegeName = document.getElementById('collegeName').value;
+            var eventName = document.getElementById('eventName').value;
+            searchEvent(collegeName, eventName);
+        });
+
+        function searchEvent(collegeName, eventName) {
+            fetch('/search?college=' + encodeURIComponent(collegeName) + '&event=' + encodeURIComponent(eventName))
+                .then(response => response.json())
+                .then(data => {
+                    var resultDiv = document.getElementById('result');
+                    resultDiv.innerHTML = ''; // Clear previous result
+
+                    if (data.error) {
+                        var errorMessageP = document.createElement('p');
+                        errorMessageP.textContent = data.error;
+                        resultDiv.appendChild(errorMessageP);
+                    } else {
+                        var collegeNameP = document.createElement('p');
+                        collegeNameP.textContent = `College Name: ${data.college}`;
+                        resultDiv.appendChild(collegeNameP);
+
+                        var eventLink = document.createElement('a');
+                        eventLink.href = data.eventUrl;
+                        eventLink.textContent = 'Event URL';
+                        resultDiv.appendChild(eventLink);
+
+                        var messageP = document.createElement('p');
+                        messageP.textContent = data.message;
+                        resultDiv.appendChild(messageP);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+    </script>
+</body>
+</html>
